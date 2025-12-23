@@ -1,0 +1,22 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Env and Credentials
+.env
+service-account.json
+creds.json
+token.json
+
+# Builds
+dist
+build
+/backend/dist
+
+# OS
+.DS_Store
+Thumbs.db
+.idea
+.vscode
+*.log
