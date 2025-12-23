@@ -1,0 +1,121 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    color: #1f2937;
+    text-align: center;
+}
+
+.slot-info {
+    background: #f3f4f6;
+    padding: 0.75rem;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 1.5rem;
+    text-transform: capitalize;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #4b5563;
+    font-size: 0.875rem;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.form-group textarea {
+    height: 80px;
+    resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #0ea5e9;
+    ring: 2px solid #e0f2fe;
+}
+
+.modal-error {
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.modal-actions button {
+    flex: 1;
+    padding: 0.75rem;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+}
+
+.cancel-button {
+    background: white;
+    border: 1px solid #d1d5db;
+    color: #4b5563;
+}
+
+.cancel-button:hover:not(:disabled) {
+    background: #f9fafb;
+}
+
+.confirm-button {
+    background: #0ea5e9;
+    border: none;
+    color: white;
+}
+
+.confirm-button:hover:not(:disabled) {
+    background: #0284c7;
+}
+
+.confirm-button:disabled,
+.cancel-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

@@ -14,3 +14,23 @@ export const getAvailability = async (date) => {
 
     return response.json();
 };
+
+export const createBooking = async (slotStart, userData) => {
+    const response = await fetch(`${API_URL}/bookings`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            slotStart,
+            ...userData
+        }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al crear la reserva');
+    }
+
+    return response.json();
+};
