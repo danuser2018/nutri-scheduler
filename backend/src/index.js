@@ -12,6 +12,10 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Nutri-Scheduler Backend is running' });
 });
 
+const availabilityController = require('./controllers/availabilityController');
+
+app.get('/api/availability', availabilityController.getAvailability);
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
