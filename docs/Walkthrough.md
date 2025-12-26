@@ -2,7 +2,7 @@
 
 ## Resumen
 
-Se ha completado exitosamente la implementación del MVP de **Nutri-Scheduler**, una aplicación web de reservas integrada con Google Calendar.
+Se está implementando el primer MVP de **Nutri-Scheduler**, una aplicación web de reservas integrada con Google Calendar.
 
 ## Funcionalidades Implementadas
 
@@ -111,10 +111,10 @@ Para completar el MVP funcional, se recomienda:
 
 ## Estado del Proyecto
 
-**Rama actual**: `feat/ui-mvp`
+**Rama actual**: `feat/booking-flow`
+
+Se está desarrollando el punto 1: Implementar el flujo de reserva completo (`POST /api/bookings`)
 
 **Servidores en ejecución**:
 - Backend: `http://localhost:3000` (nodemon)
 - Frontend: `http://localhost:5173` (Vite)
-
-**Pendiente de merge**: Las ramas `chore/setup`, `feat/availability` y `feat/ui-mvp` están listas para revisión y merge a `main`.
