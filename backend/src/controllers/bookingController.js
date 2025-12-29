@@ -4,14 +4,14 @@ async function createBooking(req, res) {
     try {
         const { slotStart, name, email, phone, notes } = req.body;
 
-        if (!slotStart || !name || !email) {
-            return res.status(400).json({ error: 'Faltan campos obligatorios: slotStart, name, email' });
-        }
+        if (!slotStart) return res.status(400).json({ error: 'El campo slotStart es obligatorio' });
+        if (!name) return res.status(400).json({ error: 'El nombre es obligatorio' });
+        if (!email) return res.status(400).json({ error: 'El email es obligatorio' });
 
-        // Basic email validation
+        // Email format validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            return res.status(400).json({ error: 'Formato de email inválido' });
+            return res.status(400).json({ error: 'El formato de email no es válido' });
         }
 
         const booking = await bookingService.createBooking(slotStart, {

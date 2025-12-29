@@ -48,7 +48,7 @@ class GoogleCalendarService {
     /**
      * Create an event in Google Calendar
      */
-    async createEvent(startTime, endTime, summary, description, attendeeEmail) {
+    async createEvent(startTime, endTime, summary, description) {
         const response = await calendar.events.insert({
             calendarId: this.calendarId,
             requestBody: {
@@ -56,7 +56,6 @@ class GoogleCalendarService {
                 description,
                 start: { dateTime: startTime.toISOString() },
                 end: { dateTime: endTime.toISOString() },
-                attendees: [{ email: attendeeEmail }],
                 reminders: {
                     useDefault: true,
                 },

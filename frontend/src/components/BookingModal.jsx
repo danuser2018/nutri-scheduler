@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import './BookingModal.css';
@@ -23,8 +23,28 @@ const BookingModal = ({ slot, onConfirm, onCancel, loading }) => {
             setError('Por favor, rellena los campos obligatorios.');
             return;
         }
+
+        // Strict email format validation (matches backend)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            setError('El formato del correo electrónico no es válido.');
+            return;
+        }
+
         setError('');
         onConfirm(formData);
+    };
+
+    useEffect(() => {
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') onCancel();
+        };
+        window.addEventListener('keydown', handleEscape);
+        return () => window.removeEventListener('keydown', handleEscape);
+    }, [onCancel]);
+
+    const handleOverlayClick = (e) => {
+        if (e.target.className === 'modal-overlay') onCancel();
     };
 
     if (!slot) return null;
@@ -32,7 +52,7 @@ const BookingModal = ({ slot, onConfirm, onCancel, loading }) => {
     const slotDate = parseISO(slot);
 
     return (
-        <div className="modal-overlay">
+        <div className="modal-overlay" onClick={handleOverlayClick}>
             <div className="modal-content">
                 <h2>Confirmar Cita</h2>
                 <p className="slot-info">

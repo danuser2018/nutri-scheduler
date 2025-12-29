@@ -21,3 +21,5 @@ app.post('/api/bookings', bookingController.createBooking);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = app;

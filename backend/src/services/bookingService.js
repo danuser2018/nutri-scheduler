@@ -2,12 +2,23 @@ const db = require('../config/database');
 const googleService = require('./googleCalendarService');
 const settings = require('../config/settings');
 const { addMinutes, parseISO, isBefore } = require('date-fns');
+const BookingStatus = require('../constants/bookingStatus');
 
 class BookingService {
     /**
      * Create a new booking
      */
     async createBooking(slotStartIso, userData) {
+        // 0. Defensive Validation
+        if (!userData || !userData.email || !userData.name) {
+            throw new Error('Datos de usuario incompletos (nombre y email son obligatorios).');
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(userData.email)) {
+            throw new Error('El formato de email proporcionado no es válido.');
+        }
+
         const slotStart = parseISO(slotStartIso);
         const slotEnd = addMinutes(slotStart, settings.appointmentDuration);
 
@@ -16,15 +27,15 @@ class BookingService {
             throw new Error('No se pueden reservar citas en el pasado.');
         }
 
-        // 2. Database lock/check (Race condition prevention)
-        // We use a transaction to ensure atomicity
+        // 2. Coordination Pattern: Reserve-then-Confirm (Saga-like)
+        // We create a 'pending' record first to lock the slot, then confirm after external API success.
         const insert = db.prepare(`
       INSERT INTO bookings (slot_start, slot_end, user_name, user_email, user_phone, notes, status)
-      VALUES (?, ?, ?, ?, ?, ?, 'pending')
+      VALUES (?, ?, ?, ?, ?, ?, '${BookingStatus.PENDING}')
     `);
 
         // Check if already exists in DB
-        const existing = db.prepare("SELECT id FROM bookings WHERE slot_start = ? AND status != 'cancelled'").get(slotStartIso);
+        const existing = db.prepare(`SELECT id FROM bookings WHERE slot_start = ? AND status != '${BookingStatus.CANCELLED}'`).get(slotStartIso);
         if (existing) {
             throw new Error('Este horario ya ha sido reservado por otra persona.');
         }
@@ -56,12 +67,11 @@ class BookingService {
                 slotStart,
                 slotEnd,
                 summary,
-                description,
-                userData.email
+                description
             );
 
             // 4. Update status to confirmed and store event ID
-            db.prepare("UPDATE bookings SET status = 'confirmed', google_event_id = ? WHERE id = ?")
+            db.prepare(`UPDATE bookings SET status = '${BookingStatus.CONFIRMED}', google_event_id = ? WHERE id = ?`)
                 .run(gEvent.id, bookingId);
 
             return {
@@ -72,9 +82,13 @@ class BookingService {
             };
 
         } catch (err) {
-            // Rollback: delete the pending record if Google fails
+            // Compensating Action: Rollback/Cleanup the pending record if Google Calendar sync fails
             db.prepare('DELETE FROM bookings WHERE id = ?').run(bookingId);
-            console.error('Error creating Google Calendar event:', err);
+            console.error('Error creating Google Calendar event:', {
+                message: err.message,
+                status: err.status,
+                details: err.response ? err.response.data : 'No details available'
+            });
             throw new Error('Error al sincronizar con Google Calendar. La reserva no se ha completado.');
         }
     }

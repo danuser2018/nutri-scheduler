@@ -1,6 +1,6 @@
 import { startOfDay, endOfDay, format } from 'date-fns';
 
-const API_URL = '/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 export const getAvailability = async (date) => {
     const from = startOfDay(date).toISOString();
@@ -9,7 +9,8 @@ export const getAvailability = async (date) => {
     const response = await fetch(`${API_URL}/availability?from=${from}&to=${to}`);
 
     if (!response.ok) {
-        throw new Error('Network response was not ok');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al obtener la disponibilidad');
     }
 
     return response.json();
