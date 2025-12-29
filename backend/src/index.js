@@ -13,9 +13,13 @@ app.get('/api/health', (req, res) => {
 });
 
 const availabilityController = require('./controllers/availabilityController');
+const bookingController = require('./controllers/bookingController');
 
 app.get('/api/availability', availabilityController.getAvailability);
+app.post('/api/bookings', bookingController.createBooking);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = app;

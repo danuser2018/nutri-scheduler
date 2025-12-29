@@ -6,12 +6,15 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "test": "vitest run",
+    "test:integration": "vitest run src/tests/booking.integration.test.js",
     "test:google": "node src/scripts/check-google.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "better-sqlite3": "^12.5.0",
     "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
@@ -20,6 +23,13 @@
     "googleapis": "^169.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.11"
+    "@babel/core": "^7.28.5",
+    "@babel/preset-env": "^7.28.5",
+    "@vitest/ui": "^4.0.16",
+    "babel-jest": "^30.2.0",
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.11",
+    "supertest": "^7.1.4",
+    "vitest": "^4.0.16"
   }
 }

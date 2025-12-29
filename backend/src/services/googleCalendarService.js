@@ -38,14 +38,30 @@ class GoogleCalendarService {
      */
     isSlotBusy(slotStart, slotEnd, busyPeriods) {
         for (const busy of busyPeriods) {
-            // Check if there is overlap
-            // A slot (S_start, S_end) overlaps with Busy (B_start, B_end) if:
-            // S_start < B_end AND S_end > B_start
             if (slotStart < busy.end && slotEnd > busy.start) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Create an event in Google Calendar
+     */
+    async createEvent(startTime, endTime, summary, description) {
+        const response = await calendar.events.insert({
+            calendarId: this.calendarId,
+            requestBody: {
+                summary,
+                description,
+                start: { dateTime: startTime.toISOString() },
+                end: { dateTime: endTime.toISOString() },
+                reminders: {
+                    useDefault: true,
+                },
+            },
+        });
+        return response.data;
     }
 }
 

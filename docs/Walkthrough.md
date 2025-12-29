@@ -17,24 +17,28 @@ Se está implementando el primer MVP de **Nutri-Scheduler**, una aplicación web
 #### Endpoints
 - `GET /api/health` - Health check del servidor
 - `GET /api/availability?from={ISO_DATE}&to={ISO_DATE}` - Consulta de disponibilidad
+- `POST /api/bookings` - Creación de nuevas reservas
 
 #### Servicios
-- **GoogleCalendarService**: Consulta períodos ocupados mediante la API `freebusy`
-- **AvailabilityService**: Calcula slots disponibles cruzando horario comercial con eventos de Google Calendar
+- **GoogleCalendarService**: Consulta períodos ocupados mediante la API `freebusy` y crea eventos.
+- **AvailabilityService**: Calcula slots disponibles cruzando horario comercial con eventos de Google Calendar.
+- **BookingService**: Gestiona la lógica de reserva, validación, persistencia en SQLite y coordinación con Google.
 
 ### Frontend (React + Vite)
 
 #### Componentes
-- **BookingPage**: Página principal con calendario interactivo y visualización de horarios
-- Selector de fecha usando `react-day-picker`
-- Grid de horarios disponibles
-- Manejo de estados (loading, error, sin disponibilidad)
+- **BookingPage**: Página principal con calendario interactivo y visualización de horarios.
+- **BookingModal**: Formulario modal para capturar datos del usuario (Nombre, Email, Teléfono, Notas).
+- Selector de fecha usando `react-day-picker`.
+- Grid de horarios disponibles.
+- Manejo de estados (loading, error, sin disponibilidad, éxito).
 
 #### Características
-- Calendario en español con locale de `date-fns`
-- Días pasados deshabilitados
-- Visualización de horarios en formato 24h
-- Proxy configurado en Vite para evitar CORS
+- Calendario en español con locale de `date-fns`.
+- Días pasados deshabilitados.
+- Visualización de horarios en formato 24h.
+- Proxy configurado en Vite para evitar CORS.
+- **Validación**: Frontend (HTML5) y Backend (Regex estricto para emails, comprobación de integridad).
 
 ## Validación Realizada
 
@@ -48,73 +52,48 @@ npm run test:google
 ```bash
 curl "http://localhost:3000/api/availability?from=2025-12-24T08:00:00Z&to=2025-12-24T18:00:00Z"
 ```
-**Resultado**: 
-```json
-{
-  "availableSlots": [
-    "2025-12-24T08:00:00.000Z",
-    "2025-12-24T09:00:00.000Z",
-    "2025-12-24T10:00:00.000Z",
-    ...
-  ]
-}
-```
+**Resultado**: JSON con slots disponibles.
+
+### Test de Flujo de Reserva
+1. Usuario selecciona slot.
+2. Rellena formulario en BookingModal.
+3. Se crea registro 'pending' en SQLite.
+4. Se crea evento en Google Calendar.
+5. Se confirma registro en SQLite.
+6. Frontend muestra mensaje de éxito.
 
 ### Test Frontend
 - ✅ Servidor corriendo en `http://localhost:5173`
 - ✅ Calendario renderizado correctamente
 - ✅ Selección de fecha funcional
 - ✅ Carga de horarios disponibles desde el backend
-- ✅ Visualización de slots en formato local (HH:mm)
+- ✅ Reserva exitosa y actualización de disponibilidad
 
 ## Archivos Clave Creados
 
 ### Backend
 - [src/index.js](file:///home/danuser2018/workspace/nutri-scheduler/backend/src/index.js) - Servidor Express principal
 - [src/config/google.js](file:///home/danuser2018/workspace/nutri-scheduler/backend/src/config/google.js) - Cliente Google Calendar API
-- [src/config/settings.js](file:///home/danuser2018/workspace/nutri-scheduler/backend/src/config/settings.js) - Configuración del negocio
-- [src/services/googleCalendarService.js](file:///home/danuser2018/workspace/nutri-scheduler/backend/src/services/googleCalendarService.js) - Servicio Google Calendar
-- [src/services/availabilityService.js](file:///home/danuser2018/workspace/nutri-scheduler/backend/src/services/availabilityService.js) - Lógica de disponibilidad
-- [src/controllers/availabilityController.js](file:///home/danuser2018/workspace/nutri-scheduler/backend/src/controllers/availabilityController.js) - Controlador HTTP
+- [src/services/bookingService.js](file:///home/danuser2018/workspace/nutri-scheduler/backend/src/services/bookingService.js) - **Nuevo**: Lógica de reservas
+- [src/controllers/bookingController.js](file:///home/danuser2018/workspace/nutri-scheduler/backend/src/controllers/bookingController.js) - **Nuevo**: Controlador de reservas
+- [src/constants/bookingStatus.js](file:///home/danuser2018/workspace/nutri-scheduler/backend/src/constants/bookingStatus.js) - **Nuevo**: Constantes de estado
 
 ### Frontend
-- [src/App.jsx](file:///home/danuser2018/workspace/nutri-scheduler/frontend/src/App.jsx) - Componente raíz
-- [src/components/BookingPage.jsx](file:///home/danuser2018/workspace/nutri-scheduler/frontend/src/components/BookingPage.jsx) - Página de reservas
-- [src/components/BookingPage.css](file:///home/danuser2018/workspace/nutri-scheduler/frontend/src/components/BookingPage.css) - Estilos
-- [src/api/client.js](file:///home/danuser2018/workspace/nutri-scheduler/frontend/src/api/client.js) - Cliente HTTP
-- [vite.config.js](file:///home/danuser2018/workspace/nutri-scheduler/frontend/vite.config.js) - Configuración con proxy
-
-## Próximos Pasos Sugeridos
-
-Para completar el MVP funcional, se recomienda:
-
-1. **Implementar el flujo de reserva completo** (`POST /api/bookings`)
-   - Crear endpoint para confirmar reservas
-   - Crear evento en Google Calendar
-   - Añadir base de datos SQLite para prevenir condiciones de carrera
-   - Formulario de datos del usuario (nombre, email, teléfono)
-
-2. **Mejorar la UI**
-   - Añadir modal/formulario al hacer clic en un slot
-   - Página de confirmación de reserva
-   - Mejoras estéticas (gradientes, animaciones)
-
-3. **Manejo de errores robusto**
-   - Validación de datos en backend
-   - Mensajes de error más descriptivos
-   - Retry logic para llamadas a Google API
-
-4. **Testing**
-   - Tests unitarios para servicios
-   - Tests de integración para endpoints
-   - Tests E2E con Playwright/Cypress
+- [src/components/BookingPage.jsx](file:///home/danuser2018/workspace/nutri-scheduler/frontend/src/components/BookingPage.jsx) - Página de reservas (actualizada)
+- [src/components/BookingModal.jsx](file:///home/danuser2018/workspace/nutri-scheduler/frontend/src/components/BookingModal.jsx) - **Nuevo**: Modal de formulario
+- [src/api/client.js](file:///home/danuser2018/workspace/nutri-scheduler/frontend/src/api/client.js) - Cliente HTTP (actualizado con `createBooking`)
 
 ## Estado del Proyecto
 
-**Rama actual**: `feat/booking-flow`
+**Estado Actual**: MVP Funcional Completado 🚀
 
-Se está desarrollando el punto 1: Implementar el flujo de reserva completo (`POST /api/bookings`)
+El flujo de reservas está totalmente implementado y probado, incluyendo:
+- Persistencia en BD (SQLite)
+- Sincronización real con Google Calendar
+- Interfaz de usuario completa
 
-**Servidores en ejecución**:
-- Backend: `http://localhost:3000` (nodemon)
-- Frontend: `http://localhost:5173` (Vite)
+**Próximos Pasos (Post-MVP)**:
+1. Emails de confirmación (Nodemailer/SendGrid)
+2. Panel de administración para ver reservas
+3. Cancelación de citas por parte del usuario
+
